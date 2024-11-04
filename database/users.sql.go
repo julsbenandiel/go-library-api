@@ -7,36 +7,43 @@ package database
 
 import (
 	"context"
+	"time"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  first_name, last_name, email, username, birth_date, address
+  id, first_name, last_name, email, username, birth_date, address, created_at, updpated_at
 ) VALUES (
-  $1, $2, $3, $4, $5, $6
+  $1, $2, $3, $4, $5, $6, $7, $8, $9
 )
 RETURNING id, first_name, last_name, email, username, birth_date, address, created_at, updpated_at
 `
 
 type CreateUserParams struct {
-	FirstName pgtype.Text `json:"first_name"`
-	LastName  pgtype.Text `json:"last_name"`
-	Email     string      `json:"email"`
-	Username  string      `json:"username"`
-	BirthDate pgtype.Date `json:"birth_date"`
-	Address   string      `json:"address"`
+	ID         uuid.UUID `json:"id"`
+	FirstName  string    `json:"first_name"`
+	LastName   string    `json:"last_name"`
+	Email      string    `json:"email"`
+	Username   string    `json:"username"`
+	BirthDate  time.Time `json:"birth_date"`
+	Address    string    `json:"address"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdpatedAt time.Time `json:"updpated_at"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRow(ctx, createUser,
+		arg.ID,
 		arg.FirstName,
 		arg.LastName,
 		arg.Email,
 		arg.Username,
 		arg.BirthDate,
 		arg.Address,
+		arg.CreatedAt,
+		arg.UpdpatedAt,
 	)
 	var i User
 	err := row.Scan(

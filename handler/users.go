@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 	"github.com/julsbenandiel/go-library-api/database"
 )
 
@@ -72,9 +72,7 @@ func (api *User) HandleGetUsers(w http.ResponseWriter, _ *http.Request) {
 
 func (api *User) HandleCreateUser(w http.ResponseWriter, r *http.Request) {
 
-	payload := &TempCreatePayload{
-		BirthDate: BirthDatePayload{},
-	}
+	payload := database.CreateUserPayload{}
 
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&payload)
@@ -84,30 +82,32 @@ func (api *User) HandleCreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	birthDate := time.Date(
-		payload.BirthDate.Year,
-		time.Month(payload.BirthDate.Month),
-		payload.BirthDate.Date,
-		0, 0, 0, 0, time.Local,
-	)
+	data := database.CreateUserParams{
+		ID:         uuid.New(),
+		FirstName:  payload.FirstName,
+		LastName:   payload.LastName,
+		Email:      payload.Email,
+		Username:   payload.Username,
+		Address:    payload.Address,
+		CreatedAt:  time.Now(),
+		UpdpatedAt: time.Now(),
+	}
 
-	log.Println("now:", time.Now())
-	log.Println("birth date:", birthDate)
-
-	createdUser, err := api.Queries.CreateUser(r.Context(), database.CreateUserParams{
-		FirstName: payload.FirstName,
-		LastName:  payload.LastName,
-		Email:     payload.Email,
-		Username:  payload.Username,
-		Address:   payload.Address,
-		BirthDate: pgtype.Date{Time: birthDate, InfinityModifier: pgtype.Finite},
-	})
-
-	cu, _ := json.MarshalIndent(createdUser, "", " ")
-	log.Println(string(cu))
-
+	parsedDate, err := time.Parse("02-01-2006", payload.BirthDate)
 	if err != nil {
-		log.Fatal("Failed to create user.", err)
+		w.WriteHeader(400)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	data.BirthDate = parsedDate
+
+	createdUser, err := api.Queries.CreateUser(r.Context(), data)
+	if err != nil {
+		log.Print(createdUser.ID)
+		w.WriteHeader(400)
+		w.Write([]byte(err.Error()))
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")

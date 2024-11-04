@@ -1,15 +1,15 @@
 -- +goose Up
 CREATE TABLE users (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  first_name VARCHAR(255), 
-  last_name VARCHAR(255),
+  id uuid PRIMARY KEY,
+  first_name VARCHAR(255) NOT NULL, 
+  last_name VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL,
   username VARCHAR(255) NOT NULL,
-  birth_date DATE,
+  birth_date DATE NOT NULL,
   address VARCHAR(255) NOT NULL,
 
-  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  updpated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP 
+  created_at TIMESTAMPTZ NOT NULL,
+  updpated_at TIMESTAMPTZ NOT NULL 
 );
 
 -- +goose Down

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
@@ -23,6 +24,14 @@ func main() {
 
 	userHandler := &handler.User{Queries: queries}
 
+	sampleDate := "07-09-1996"
+	parsedDate, err := time.Parse("02-01-2006", sampleDate)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println(parsedDate)
+
 	router.HandleFunc("GET /user", userHandler.HandleGetUsers)
 	router.HandleFunc("POST /user", userHandler.HandleCreateUser)
 
@@ -36,22 +45,6 @@ func main() {
 
 	log.Println("Server started on port 8080")
 	server.ListenAndServe()
-
-	// queries := database.New(db)
-
-	// user, err := queries.CreateUser(ctx, database.CreateUserParams{
-	// 	FirstName: pgtype.Text{String: "John"},
-	// 	LastName:  pgtype.Text{String: "Doe"},
-	// 	Email:     "julsbenandiel@gmail.com",
-	// 	Username:  "julsbenandiel",
-	// 	Address:   "Bijlmerplein 8888",
-	// 	BirthDate: pgtype.Date{Time: time.Date(1996, time.September, 7, 0, 0, 0, 0, time.UTC)},
-	// })
-	// if err != nil {
-	// 	log.Fatal("cannot create User: ", err)
-	// }
-
-	// log.Println("User created ", user)
 }
 
 func connectToDB() *pgx.Conn {

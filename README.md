@@ -14,4 +14,5 @@ https://go.dev/doc/modules/layout
 
 *** Notes
 - to use uuid -> CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-- run migratations goose postgres postgres://dev:admin123@localhost:5432/perks up
+- run migratations
+  - goose postgres postgres://dev:admin123@localhost:5432/perks up
