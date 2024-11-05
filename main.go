@@ -23,6 +23,7 @@ func main() {
 	router := http.NewServeMux()
 
 	userHandler := &handler.User{Queries: queries}
+	api := &handler.API{Queries: queries}
 
 	sampleDate := "07-09-1996"
 	parsedDate, err := time.Parse("02-01-2006", sampleDate)
@@ -33,7 +34,11 @@ func main() {
 	log.Println(parsedDate)
 
 	router.HandleFunc("GET /user", userHandler.HandleGetUsers)
+	router.HandleFunc("GET /user/{id}/stubs", api.GetStubsByUser)
 	router.HandleFunc("POST /user", userHandler.HandleCreateUser)
+
+	router.HandleFunc("GET /stub", api.GetStubsWithUser)
+	router.HandleFunc("POST /stub", api.CreateStub)
 
 	// apiv1 := http.NewServeMux()
 	// apiv1.Handle("/api/", http.StripPrefix("/api", router))

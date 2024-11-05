@@ -11,17 +11,6 @@ import (
 	"github.com/julsbenandiel/go-library-api/database"
 )
 
-type BirthDatePayload struct {
-	Year  int `json:"year"`
-	Month int `json:"month"`
-	Date  int `json:"date"`
-}
-
-type TempCreatePayload struct {
-	*database.CreateUserParams
-	BirthDate BirthDatePayload `json:"birth_date"`
-}
-
 func (api *User) HandleGetUsers(w http.ResponseWriter, _ *http.Request) {
 	ctx := context.Background()
 	users, err := api.Queries.GetUsers(ctx)
@@ -31,28 +20,6 @@ func (api *User) HandleGetUsers(w http.ResponseWriter, _ *http.Request) {
 	if err != nil {
 		log.Fatal("Cannot get users. Err ", err)
 	}
-
-	// var tempDataSlice []map[string]interface{}
-
-	// for _, user := range users {
-	// 	d, err := time.Parse(time.RFC3339, user.BirthDate)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-
-	// 	tempDataSlice = append(tempDataSlice, map[string]interface{}{
-	// 		"tanga":      "ka bobo",
-	// 		"ID":         user.ID,
-	// 		"FirstName":  user.FirstName,
-	// 		"LastName":   user.LastName,
-	// 		"Email":      user.Email,
-	// 		"Username":   user.Username,
-	// 		"Address":    user.Address,
-	// 		"CreatedAt":  user.CreatedAt,
-	// 		"UpdpatedAt": user.UpdpatedAt,
-	// 		"BirthDate":  d,
-	// 	})
-	// }
 
 	if err != nil {
 		log.Printf("Error marshalling JSON: %s", err)

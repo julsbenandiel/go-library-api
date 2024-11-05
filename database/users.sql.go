@@ -60,6 +60,61 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const getUserStubs = `-- name: GetUserStubs :many
+SELECT 
+  u.id, u.first_name, u.last_name, u.email, u.username, u.birth_date, u.address, u.created_at, u.updpated_at, 
+  array_agg(stubs) as stubs
+FROM users u
+JOIN stubs ON stubs.created_by = u.id
+WHERE u.id = $1
+GROUP BY u.id
+ORDER BY u.created_at DESC
+`
+
+type GetUserStubsRow struct {
+	ID         uuid.UUID   `json:"id"`
+	FirstName  string      `json:"first_name"`
+	LastName   string      `json:"last_name"`
+	Email      string      `json:"email"`
+	Username   string      `json:"username"`
+	BirthDate  time.Time   `json:"birth_date"`
+	Address    string      `json:"address"`
+	CreatedAt  time.Time   `json:"created_at"`
+	UpdpatedAt time.Time   `json:"updpated_at"`
+	Stubs      interface{} `json:"stubs"`
+}
+
+func (q *Queries) GetUserStubs(ctx context.Context, id uuid.UUID) ([]GetUserStubsRow, error) {
+	rows, err := q.db.Query(ctx, getUserStubs, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUserStubsRow
+	for rows.Next() {
+		var i GetUserStubsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.FirstName,
+			&i.LastName,
+			&i.Email,
+			&i.Username,
+			&i.BirthDate,
+			&i.Address,
+			&i.CreatedAt,
+			&i.UpdpatedAt,
+			&i.Stubs,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUsers = `-- name: GetUsers :many
 SELECT id, first_name, last_name, email, username, birth_date, address, created_at, updpated_at FROM users ORDER BY created_at DESC
 `

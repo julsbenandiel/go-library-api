@@ -7,3 +7,6 @@ import (
 type User struct {
 	Queries *database.Queries
 }
+type API struct {
+	Queries *database.Queries
+}
